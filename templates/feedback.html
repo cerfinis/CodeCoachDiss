@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+
+        .topbar {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+        .topbar .logo { font-weight: bold; font-size: 1.1em; letter-spacing: 1px; }
+        .meta { display: flex; gap: 20px; align-items: center; }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .badge-easy   { background: #28a74520; color: #28a745; border: 1px solid #28a745; }
+        .badge-medium { background: #ffc10720; color: #e6a800; border: 1px solid #ffc107; }
+        .badge-hard   { background: #dc354520; color: #dc3545; border: 1px solid #dc3545; }
+
+        .progress-wrap {
+            background: #e0e0e0;
+            border-radius: 4px;
+            height: 8px;
+            width: 120px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            border-radius: 4px;
+        }
+
+        .main {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* results */
+        .result-icon {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .feedback-text.correct  { color: #27ae60; }
+        .feedback-text.incorrect { color: #e74c3c; }
+
+        /* mastery bar */
+        .mastery-section {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .mastery-label {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .mastery-bar-wrap {
+            background: #e0e0e0;
+            border-radius: 6px;
+            height: 12px;
+            overflow: hidden;
+        }
+        .mastery-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* difficulty change banner */
+        .diff-banner {
+            background: #fff8e1;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 0.95em;
+            color: #795548;
+            margin-bottom: 20px;
+        }
+
+        /* buttons */
+        .btn {
+            display: inline-block;
+            padding: 13px 30px;
+            margin: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            border-radius: 8px;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn:hover  { opacity: 0.88; }
+        .btn:active { transform: scale(0.97); }
+        .btn-next { background: #2ecc71; }
+        .btn-home { background: #7f8c8d; }
+
+        .attempts-note {
+            font-size: 0.82em;
+            color: #aaa;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="logo">CodeCoach</span>
+    <div class="meta">
+        <span>{{ attempt_num }} / {{ max_attempts }} complete</span>
+        <div class="progress-wrap">
+            <div class="progress-fill"
+                 data-width="{{ (attempt_num / max_attempts * 100)|int }}">
+            </div>
+        </div>
+        <span class="badge badge-{{ new_difficulty }}">{{ new_difficulty }}</span>
+    </div>
+</div>
+
+<div class="main">
+
+    {% if diff_message %}
+    <div class="diff-banner">🔀 {{ diff_message }}</div>
+    {% endif %}
+
+    <div class="card">
+        <div class="result-icon">{{ "YEs" if is_correct else "No" }}</div>
+        <div class="feedback-text {{ feedback_class }}">{{ feedback_text }}</div>
+
+        <!-- per-question mastery bar -->
+        <div class="mastery-section">
+            <div class="mastery-label">
+                Item mastery: {{ mastery_score }} / {{ mastery_max }}
+                {% if is_correct %}<span style="color:#27ae60">(+1)</span>
+                {% else %}<span style="color:#e74c3c">(-1 or held at 0)</span>{% endif %}
+            </div>
+            <div class="mastery-bar-wrap">
+                <div class="mastery-bar-fill"
+                     data-width="{{ (mastery_score / mastery_max * 100)|int }}">
+                </div>
+            </div>
+        </div>
+
+        {% if next_id %}
+            <a href="/exercise/{{ next_id }}" class="btn btn-next">Next Exercise</a>
+        {% else %}
+            <p style="color:#27ae60; font-size:1.1em">
+                You've worked through all available exercises!
+            </p>
+            <a href="{{ url_for('posttest') }}" class="btn btn-next">Take Post-test →</a>
+        {% endif %}
+
+        <br>
+        <a href="/" class="btn btn-home">Home</a>
+
+        <p class="attempts-note">
+            {{ max_attempts - attempt_num }} exercise(s) remaining before post-test
+        </p>
+    </div>
+
+</div>
+<script>
+    document.querySelectorAll('[data-width]').forEach(function(el) {
+        el.style.width = el.getAttribute('data-width') + '%';
+    });
+</script>
+</body>
+</html>

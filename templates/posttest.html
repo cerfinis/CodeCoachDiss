@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post-Test</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+        .topbar {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 30px;
+            font-size: 0.9em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .main {
+            max-width: 860px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 36px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        h1 { margin: 0 0 6px; }
+        .subtitle { color: #888; margin-bottom: 28px; }
+
+        .notice {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9em;
+            color: #856404;
+            margin-bottom: 28px;
+        }
+
+        .question-block {
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafafa;
+        }
+        .question-block h3 {
+            margin: 0 0 12px;
+            font-size: 1em;
+            color: #1a1a2e;
+        }
+        textarea {
+            width: 100%;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 12px;
+            height: 120px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        textarea:focus { outline: none; border-color: #3498db; }
+
+        .btn-submit {
+            padding: 13px 36px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #2980b9; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">CodeCoach — Post-Test</div>
+
+<div class="main">
+    <div class="card">
+        <h1>Post-Test (3 questions)</h1>
+        <p class="subtitle">Same questions as the pre-test; let's see how far you've come!</p>
+
+        <div class="notice">
+            Answer as best you can, without looking anything up.
+            These results measure your learning gain from the session.
+        </div>
+
+        <form method="POST">
+            {% for q in questions %}
+            <div class="question-block">
+                <h3>{{ loop.index }}. {{ q.question }}</h3>
+                <textarea name="code_{{ q.id }}"
+                          placeholder="Write your Python code here..."></textarea>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-submit">Submit Post-Test →</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pre-Test Complete</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+        .main {
+            max-width: 600px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        h1 { color: #1a1a2e; margin-bottom: 6px; }
+        .subtitle { color: #888; margin-bottom: 30px; }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.2em;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .score-label { font-size: 0.4em; font-weight: normal; margin-top: 4px; }
+
+        .score-good { background: #d4edda; color: #155724; border: 3px solid #28a745; }
+        .score-ok   { background: #fff3cd; color: #856404; border: 3px solid #ffc107; }
+        .score-low  { background: #f8d7da; color: #721c24; border: 3px solid #dc3545; }
+
+        .message { font-size: 1.1em; margin: 16px 0 28px; color: #555; }
+
+        .diff-info {
+            background: #e8f4fd;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 0.9em;
+            color: #1a5276;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 13px 32px;
+            margin: 8px;
+            font-size: 1.05em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            border-radius: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.88; }
+        .btn-start { background: #3498db; }
+        .btn-home  { background: #7f8c8d; }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="card">
+        <h1>Pre-Test Complete</h1>
+        <p class="subtitle">Here's your starting baseline</p>
+
+        <div class="score-circle
+            {{ 'score-good' if score == 3 else ('score-ok' if score == 2 else 'score-low') }}">
+            {{ score }}/3
+            <span class="score-label">correct</span>
+        </div>
+
+        <p class="message">
+            {% if score == 3 %}
+                Excellent! You're starting at <strong>medium</strong> difficulty.
+            {% elif score == 2 %}
+                Good effort! You're starting at <strong>easy</strong> difficulty.
+            {% else %}
+                No worries — the system will guide you from the beginning.
+                Starting at <strong>easy</strong> difficulty.
+            {% endif %}
+        </p>
+
+        <div class="diff-info">
+            The adaptive engine will now select exercises based on your performance.
+            Exercises adjust in real time, and if you're flying through them, the difficulty
+            goes up; if you're struggling, it comes back down.
+        </div>
+
+        {% if first_id %}
+            <a href="{{ url_for('show_exercise', item_id=first_id) }}" class="btn btn-start">
+                Start Adaptive Practice
+            </a>
+        {% else %}
+            <p style="color:#e74c3c">No exercises found. Check that item_bank.csv is loaded.</p>
+        {% endif %}
+
+        <br>
+        <a href="{{ url_for('home') }}" class="btn btn-home">Back to Home</a>
+    </div>
+</div>
+</body>
+</html>

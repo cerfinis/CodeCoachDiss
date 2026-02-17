@@ -1,0 +1,2 @@
+participant_id,timestamp,test_type,answers_json,score
+1883b8df-3ecd-4c5b-a6eb-b546c4096a67,2026-02-12T16:50:20.405839,pretest,"{'pre1': 'a', 'pre2': 'a', 'pre3': 'a'}",0

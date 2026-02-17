@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercise {{ item_id }}</title>
+
+    <!-- implementing codemirror5 so that the input is its own coding environment-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            color: #1a1a2e;
+        }
+
+        /* top bar */
+        .topbar {
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9em;
+        }
+        .topbar .logo { font-weight: bold; font-size: 1.1em; letter-spacing: 1px; }
+        .topbar .meta { display: flex; gap: 20px; align-items: center; }
+
+        /* difficulty badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-easy   { background: #28a74520; color: #28a745; border: 1px solid #28a745; }
+        .badge-medium { background: #ffc10720; color: #e6a800; border: 1px solid #ffc107; }
+        .badge-hard   { background: #dc354520; color: #dc3545; border: 1px solid #dc3545; }
+
+        /* progress bar which increases as you complete */
+        .progress-wrap {
+            background: #e0e0e0;
+            border-radius: 4px;
+            height: 8px;
+            width: 120px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* main */
+        .main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin: 0 0 8px 0;
+            color: #1a1a2e;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            line-height: 1.6;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        /* mastery graphic bar */
+        .mastery-label {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 6px;
+        }
+        .mastery-bar-wrap {
+            background: #e0e0e0;
+            border-radius: 6px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .mastery-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        /* hint option to the user */
+        .hint-box {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            color: #1a5276;
+            display: none;
+            margin-top: 10px;
+        }
+        .btn-hint {
+            background: none;
+            border: 1px solid #3498db;
+            color: #3498db;
+            padding: 7px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .btn-hint:hover { background: #e8f4fd; }
+
+        /* code editor with codemirror */
+        .editor-wrap {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+            transition: border-color 0.2s;
+        }
+        .editor-wrap:focus-within { border-color: #3498db; }
+        .CodeMirror {
+            height: 280px;
+            font-size: 14px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+        }
+
+        /* submit buttons */
+        .btn-submit {
+            padding: 13px 32px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover   { background: #27ae60; }
+        .btn-submit:active  { transform: scale(0.98); }
+
+        .footer-link {
+            color: #aaa;
+            font-size: 0.85em;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .footer-link:hover { color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <span class="logo">CodeCoach</span>
+    <div class="meta">
+        <span>Exercise {{ attempt_num }} / {{ max_attempts }}</span>
+        <div class="progress-wrap" title="Session progress">
+            <div class="progress-fill"
+                 data-width="{{ ((attempt_num - 1) / max_attempts * 100)|int }}">
+            </div>
+        </div>
+        <span class="badge badge-{{ difficulty }}">{{ difficulty }}</span>
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- current question card -->
+    <div class="card">
+        <h2>Question {{ item_id }}</h2>
+        <p class="question-text">{{ question }}</p>
+
+        <!-- master/skill indicator -->
+        <div style="margin-top: 18px;">
+            <div class="mastery-label">
+                Your mastery for this item: {{ current_mastery }} / {{ mastery_max }}
+            </div>
+            <div class="mastery-bar-wrap">
+                <div class="mastery-bar-fill"
+                     data-width="{{ (current_mastery / mastery_max * 100)|int }}">
+                </div>
+            </div>
+        </div>
+
+        {% if hint %}
+        <button class="btn-hint" onclick="toggleHint(this)">! Show Hint</button>
+        <div class="hint-box" id="hint-box">{{ hint }}</div>
+        {% endif %}
+    </div>
+
+    <!-- editor card -->
+    <div class="card">
+        <h2>Your Answer</h2>
+        <form method="POST" action="/attempt" id="code-form">
+            <input type="hidden" name="item_id"        value="{{ item_id }}">
+            <input type="hidden" name="hint_requested" id="hint-flag" value="false">
+
+            <div class="editor-wrap">
+                <textarea id="code" name="code"></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Submit</button>
+        </form>
+        <br>
+        <a href="/" class="footer-link">Back to home</a>
+    </div>
+
+</div>
+
+<script>
+    // applying data wdth values as inline widths here
+    document.querySelectorAll('[data-width]').forEach(function(el) {
+        el.style.width = el.getAttribute('data-width') + '%';
+    });
+
+    // setting up codemirror5 properly
+    const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode:           "python",
+        theme:          "dracula",
+        lineNumbers:    true,
+        indentUnit:     4,
+        tabSize:        4,
+        indentWithTabs: false,
+        autofocus:      true,
+        extraKeys: {
+            "Tab": cm => cm.replaceSelection("    ", "end")
+        }
+    });
+
+    // codemirror sync when submitting
+    document.getElementById('code-form').addEventListener('submit', function() {
+        editor.save();
+    });
+
+    // hint toggling option
+    function toggleHint(btn) {
+        const box = document.getElementById('hint-box');
+        const showing = box.style.display === 'block';
+        box.style.display  = showing ? 'none' : 'block';
+        btn.textContent    = showing ? '💡 Show Hint' : '💡 Hide Hint';
+        if (!showing) {
+            document.getElementById('hint-flag').value = 'true';
+        }
+    }
+</script>
+</body>
+</html>

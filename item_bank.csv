@@ -1,0 +1,6 @@
+id,question,correct_answer,difficulty,tags,hint
+1,"Write a for loop to print numbers 1 to 5.","for i in range(1, 6):\n    print(i)",easy,for-loop,"Use range(1,6) to go from 1 to 5"
+2,"Use a while loop to print 'Hi' exactly 3 times.","count = 0\nwhile count < 3:\n    print('Hi')\n    count += 1",easy,while-loop,"Remember to increment count inside the loop"
+3,"Calculate the sum of numbers from 1 to 10 using a loop.","total = 0\nfor num in range(1, 11):\n    total += num\nprint(total)",medium,"for-loop,sum","range(1,11) includes 1 to 10"
+4,"Print even numbers from 2 to 10 using for loop.","for i in range(2, 11, 2):\n    print(i)",easy,for-loop,"Step by 2 in range"
+5,"Find factorial of 5 using while loop.","fact = 1\nnum = 5\nwhile num > 0:\n    fact *= num\n    num -= 1\nprint(fact)",medium,while-loop,"Multiply fact by num and decrease num"
