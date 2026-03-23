@@ -74,7 +74,7 @@
             font-weight: bold;
             margin-bottom: 6px;
         }
-        .feedback-text.correct  { color: #27ae60; }
+        .feedback-text.correct   { color: #27ae60; }
         .feedback-text.incorrect { color: #e74c3c; }
 
         /* mastery bar */
@@ -111,6 +111,57 @@
             margin-bottom: 20px;
         }
 
+        /* corrective feedback box shown on incorrect attempts */
+        /* implements formative feedback principle: showing a worked solution */
+        /* lets the learner compare their attempt against a correct one*/
+        .correct-answer-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-left: 4px solid #e74c3c;
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .ca-label {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .correct-answer-box pre {
+            margin: 0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.95em;
+            background: #1a1a2e;
+            color: #f8f8f2;
+            padding: 14px 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.6;
+        }
+        .ca-note {
+            font-size: 0.82em;
+            color: #888;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* next button locked briefly on incorrect so learner reviews the solution */
+        .btn-locked {
+            opacity: 0.45;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        .countdown-note {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-top: 6px;
+        }
+
         /* buttons */
         .btn {
             display: inline-block;
@@ -127,12 +178,6 @@
         .btn:active { transform: scale(0.97); }
         .btn-next { background: #2ecc71; }
         .btn-home { background: #7f8c8d; }
-
-        .attempts-note {
-            font-size: 0.82em;
-            color: #aaa;
-            margin-top: 6px;
-        }
     </style>
 </head>
 <body>
@@ -140,7 +185,7 @@
 <div class="topbar">
     <span class="logo">CodeCoach</span>
     <div class="meta">
-        <span>{{ attempt_num }} / {{ max_attempts }} complete</span>
+        <span>{{ attempt_num }} / {{ max_attempts }} done</span>
         <div class="progress-wrap">
             <div class="progress-fill"
                  data-width="{{ (attempt_num / max_attempts * 100)|int }}">
@@ -157,8 +202,18 @@
     {% endif %}
 
     <div class="card">
-        <div class="result-icon">{{ "YEs" if is_correct else "No" }}</div>
+        <div class="result-icon">{{ "✅" if is_correct else "❌" }}</div>
         <div class="feedback-text {{ feedback_class }}">{{ feedback_text }}</div>
+
+        <!-- corrective feedback: shown only on incorrect attempts -->
+        <!-- displays a worked solution so the learner can identify where they went wrong -->
+        {% if correct_answer %}
+        <div class="correct-answer-box">
+            <div class="ca-label">✏️ A correct solution</div>
+            <pre>{{ correct_answer }}</pre>
+            <p class="ca-note">Review the solution above before continuing.</p>
+        </div>
+        {% endif %}
 
         <!-- per-question mastery bar -->
         <div class="mastery-section">
@@ -174,28 +229,53 @@
             </div>
         </div>
 
+        <!-- next button (locked for 4s) on incorrect so learner is nudged to read the solution -->
         {% if next_id %}
-            <a href="/exercise/{{ next_id }}" class="btn btn-next">Next Exercise</a>
+            <a href="/exercise/{{ next_id }}"
+               class="btn btn-next {% if correct_answer %}btn-locked{% endif %}"
+               id="next-btn">Next Exercise</a>
         {% else %}
-            <p style="color:#27ae60; font-size:1.1em">
-                You've worked through all available exercises!
-            </p>
-            <a href="{{ url_for('posttest') }}" class="btn btn-next">Take Post-test →</a>
+            <p style="color:#27ae60; font-size:1.1em">No more exercises available</p>
+            <a href="{{ url_for('posttest') }}"
+               class="btn btn-next {% if correct_answer %}btn-locked{% endif %}"
+               id="next-btn">Post-test</a>
+        {% endif %}
+
+        {% if correct_answer %}
+        <p class="countdown-note" id="countdown-note">Available in <span id="countdown">4</span>s</p>
         {% endif %}
 
         <br>
         <a href="/" class="btn btn-home">Home</a>
-
-        <p class="attempts-note">
-            {{ max_attempts - attempt_num }} exercise(s) remaining before post-test
-        </p>
     </div>
 
 </div>
+
 <script>
+    // apply data width values as inline widths
     document.querySelectorAll('[data-width]').forEach(function(el) {
         el.style.width = el.getAttribute('data-width') + '%';
     });
+
+    // unlock the next button after 4 seconds on incorrect attempts
+    // encourages the learner to read the corrective solution before moving on
+    const nextBtn = document.getElementById('next-btn');
+    const countdownEl = document.getElementById('countdown');
+    const countdownNote = document.getElementById('countdown-note');
+
+    if (nextBtn && nextBtn.classList.contains('btn-locked')) {
+        let seconds = 4;
+        const interval = setInterval(function() {
+            seconds--;
+            if (countdownEl) countdownEl.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                nextBtn.classList.remove('btn-locked');
+                if (countdownNote) countdownNote.style.display = 'none';
+            }
+        }, 1000);
+    }
 </script>
+
 </body>
 </html>

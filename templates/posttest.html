@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Post-Test</title>
+    <title>Final Questions</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -32,16 +32,6 @@
         }
         h1 { margin: 0 0 6px; }
         .subtitle { color: #888; margin-bottom: 28px; }
-
-        .notice {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 12px 16px;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.9em;
-            color: #856404;
-            margin-bottom: 28px;
-        }
 
         .question-block {
             border: 1px solid #e8e8e8;
@@ -85,17 +75,11 @@
 </head>
 <body>
 
-<div class="topbar">CodeCoach — Post-Test</div>
+<div class="topbar">CodeCoach</div>
 
 <div class="main">
     <div class="card">
-        <h1>Post-Test (3 questions)</h1>
-        <p class="subtitle">Same questions as the pre-test; let's see how far you've come!</p>
-
-        <div class="notice">
-            Answer as best you can, without looking anything up.
-            These results measure your learning gain from the session.
-        </div>
+        <h1>Final Questions (3)</h1>
 
         <form method="POST">
             {% for q in questions %}
@@ -106,7 +90,7 @@
             </div>
             {% endfor %}
 
-            <button type="submit" class="btn-submit">Submit Post-Test →</button>
+            <button type="submit" class="btn-submit">Submit</button>
         </form>
     </div>
 </div>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pre-Test - CodeCoach</title>
+    <title>Initial Questions</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; max-width: 900px; background: #f8f9fa; }
         .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -15,8 +15,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Pre-Test (3 questions)</h1>
-        <p>Answer these before the adaptive practice to measure your starting level.</p>
+        <h1>Initial Questions (3)</h1>
+
         <form method="POST">
             {% for q in questions %}
                 <div class="question">
@@ -24,7 +24,7 @@
                     <textarea name="code_{{ q.id }}" placeholder="Write your Python code here..."></textarea>
                 </div>
             {% endfor %}
-            <button type="submit">Submit Pre-Test</button>
+            <button type="submit">Submit</button>
         </form>
         <br>
         <a href="/">Back to Home</a>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Session Complete</title>
+    <title>Session Finished</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -90,15 +90,6 @@
             margin-top: 2px;
         }
 
-        .thank-you {
-            background: #e8f4fd;
-            border-radius: 8px;
-            padding: 14px 18px;
-            font-size: 0.9em;
-            color: #1a5276;
-            margin: 20px 0;
-        }
-
         .btn {
             display: inline-block;
             padding: 12px 28px;
@@ -117,21 +108,21 @@
 <div class="main">
     <div class="card">
 
-        <div style="font-size:3em;">Nice!</div>
-        <h1>Session Complete!</h1>
-        <p class="subtitle">Here's how you did</p>
+        <div style="font-size:3em;">Done</div>
+        <h1>Session Finished</h1>
+        <p class="subtitle">Summary</p>
 
         <!-- pre-score vs post score -->
         {% set gain = post_score - pre_score %}
         <div class="score-row">
             <div class="score-block pre-block">
                 {{ pre_score }}/3
-                <span class="score-label">Pre-test</span>
+                <span class="score-label">Pre</span>
             </div>
             <div class="arrow">→</div>
             <div class="score-block post-block">
                 {{ post_score }}/3
-                <span class="score-label">Post-test</span>
+                <span class="score-label">Post</span>
             </div>
         </div>
 
@@ -139,11 +130,11 @@
         <div class="gain-badge
             {{ 'gain-positive' if gain > 0 else ('gain-negative' if gain < 0 else 'gain-zero') }}">
             {% if gain > 0 %}
-                📈 +{{ gain }} improvement
+                +{{ gain }}
             {% elif gain == 0 %}
-                ➡️ Score maintained
+                Same
             {% else %}
-                📉 {{ gain }} (keep practising!)
+                {{ gain }}
             {% endif %}
         </div>
 
@@ -151,7 +142,7 @@
         <div class="stats-grid">
             <div class="stat-item">
                 <div class="value">{{ total_attempts }}</div>
-                <div class="label">Exercises completed</div>
+                <div class="label">Exercises done</div>
             </div>
             <div class="stat-item">
                 <div class="value">{{ hint_count }}</div>
@@ -159,23 +150,11 @@
             </div>
             <div class="stat-item">
                 <div class="value" style="text-transform:capitalize">{{ final_difficulty }}</div>
-                <div class="label">Final difficulty level</div>
-            </div>
-            <div class="stat-item">
-                <div class="value">
-                    {% if pre_score < post_score %}1{% elif pre_score == post_score %}2{% else %}3{% endif %}
-                </div>
-                <div class="label">
-                    {% if pre_score < post_score %}Learning detected{% elif pre_score == post_score %}Maintained skills{% else %}More practice needed{% endif %}
-                </div>
+                <div class="label">Ending level</div>
             </div>
         </div>
 
-        <div class="thank-you">
-            Thank you for participating!
-        </div>
-
-        <a href="/" class="btn btn-home">Start a New Session</a>
+        <a href="/" class="btn btn-home">New Session</a>
     </div>
 </div>
 </body>

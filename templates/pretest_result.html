@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Pre-Test Complete</title>
+    <title>Pre-Questions Done</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -75,8 +75,8 @@
 <body>
 <div class="main">
     <div class="card">
-        <h1>Pre-Test Complete</h1>
-        <p class="subtitle">Here's your starting baseline</p>
+        <h1>Pre-Questions Done</h1>
+        <p class="subtitle">Starting point</p>
 
         <div class="score-circle
             {{ 'score-good' if score == 3 else ('score-ok' if score == 2 else 'score-low') }}">
@@ -86,24 +86,21 @@
 
         <p class="message">
             {% if score == 3 %}
-                Excellent! You're starting at <strong>medium</strong> difficulty.
+                Starting at medium difficulty.
             {% elif score == 2 %}
-                Good effort! You're starting at <strong>easy</strong> difficulty.
+                Starting at easy difficulty.
             {% else %}
-                No worries — the system will guide you from the beginning.
-                Starting at <strong>easy</strong> difficulty.
+                Starting at easy difficulty.
             {% endif %}
         </p>
 
         <div class="diff-info">
-            The adaptive engine will now select exercises based on your performance.
-            Exercises adjust in real time, and if you're flying through them, the difficulty
-            goes up; if you're struggling, it comes back down.
+            The system selects exercises and adjusts difficulty automatically.
         </div>
 
         {% if first_id %}
             <a href="{{ url_for('show_exercise', item_id=first_id) }}" class="btn btn-start">
-                Start Adaptive Practice
+                Start Practice
             </a>
         {% else %}
             <p style="color:#e74c3c">No exercises found. Check that item_bank.csv is loaded.</p>

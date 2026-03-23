@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <title>Exercise {{ item_id }}</title>
 
-    <!-- implementing codemirror5 so that the input is its own coding environment-->
+    <!-- CodeMirror 5 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+
+    <!-- Pyodide runs Python in the browser via WebAssembly -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 
     <style>
         * { box-sizing: border-box; }
@@ -18,8 +21,6 @@
             background: #f0f2f5;
             color: #1a1a2e;
         }
-
-        /* top bar */
         .topbar {
             background: #1a1a2e;
             color: white;
@@ -31,8 +32,6 @@
         }
         .topbar .logo { font-weight: bold; font-size: 1.1em; letter-spacing: 1px; }
         .topbar .meta { display: flex; gap: 20px; align-items: center; }
-
-        /* difficulty badges */
         .badge {
             padding: 4px 12px;
             border-radius: 12px;
@@ -44,8 +43,6 @@
         .badge-easy   { background: #28a74520; color: #28a745; border: 1px solid #28a745; }
         .badge-medium { background: #ffc10720; color: #e6a800; border: 1px solid #ffc107; }
         .badge-hard   { background: #dc354520; color: #dc3545; border: 1px solid #dc3545; }
-
-        /* progress bar which increases as you complete */
         .progress-wrap {
             background: #e0e0e0;
             border-radius: 4px;
@@ -59,14 +56,11 @@
             border-radius: 4px;
             transition: width 0.3s;
         }
-
-        /* main */
         .main {
             max-width: 900px;
             margin: 30px auto;
             padding: 0 20px;
         }
-
         .card {
             background: white;
             border-radius: 12px;
@@ -74,7 +68,6 @@
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             margin-bottom: 20px;
         }
-
         .card h2 {
             margin: 0 0 8px 0;
             color: #1a1a2e;
@@ -83,20 +76,13 @@
             letter-spacing: 1px;
             opacity: 0.5;
         }
-
         .question-text {
             font-size: 1.2em;
             line-height: 1.6;
             color: #1a1a2e;
             margin: 0;
         }
-
-        /* mastery graphic bar */
-        .mastery-label {
-            font-size: 0.85em;
-            color: #888;
-            margin-bottom: 6px;
-        }
+        .mastery-label { font-size: 0.85em; color: #888; margin-bottom: 6px; }
         .mastery-bar-wrap {
             background: #e0e0e0;
             border-radius: 6px;
@@ -109,8 +95,6 @@
             border-radius: 6px;
             transition: width 0.4s ease;
         }
-
-        /* hint option to the user */
         .hint-box {
             background: #e8f4fd;
             border-left: 4px solid #3498db;
@@ -131,8 +115,6 @@
             margin-top: 10px;
         }
         .btn-hint:hover { background: #e8f4fd; }
-
-        /* code editor with codemirror */
         .editor-wrap {
             border-radius: 8px;
             overflow: hidden;
@@ -146,22 +128,78 @@
             font-family: 'Fira Code', 'Courier New', monospace;
         }
 
-        /* submit buttons */
+        /* run output panel */
+        .output-panel {
+            margin-top: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+        .output-panel .output-header {
+            background: #2d2d2d;
+            color: #aaa;
+            font-size: 0.78em;
+            padding: 6px 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .output-panel pre {
+            background: #1a1a2e;
+            color: #f8f8f2;
+            margin: 0;
+            padding: 14px 16px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            min-height: 48px;
+        }
+        .output-badge {
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .output-correct { background: #d4edda; color: #155724; }
+        .output-wrong   { background: #f8d7da; color: #721c24; }
+        .output-error   { background: #fff3cd; color: #856404; }
+
+        /* buttons */
+        .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+        .btn-run {
+            padding: 11px 24px;
+            background: #8e44ad;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-run:hover   { background: #7d3c98; }
+        .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-submit {
-            padding: 13px 32px;
+            padding: 11px 28px;
             background: #2ecc71;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 0.95em;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 16px;
             transition: background 0.2s, transform 0.1s;
         }
-        .btn-submit:hover   { background: #27ae60; }
-        .btn-submit:active  { transform: scale(0.98); }
-
+        .btn-submit:hover  { background: #27ae60; }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pyodide-status {
+            font-size: 0.8em;
+            color: #aaa;
+            align-self: center;
+        }
         .footer-link {
             color: #aaa;
             font-size: 0.85em;
@@ -178,10 +216,8 @@
     <span class="logo">CodeCoach</span>
     <div class="meta">
         <span>Exercise {{ attempt_num }} / {{ max_attempts }}</span>
-        <div class="progress-wrap" title="Session progress">
-            <div class="progress-fill"
-                 data-width="{{ ((attempt_num - 1) / max_attempts * 100)|int }}">
-            </div>
+        <div class="progress-wrap">
+            <div class="progress-fill" data-width="{{ ((attempt_num - 1) / max_attempts * 100)|int }}"></div>
         </div>
         <span class="badge badge-{{ difficulty }}">{{ difficulty }}</span>
     </div>
@@ -189,26 +225,33 @@
 
 <div class="main">
 
-    <!-- current question card -->
+    <!-- question card -->
     <div class="card">
         <h2>Question {{ item_id }}</h2>
-        <p class="question-text">{{ question }}</p>
+        <p class="question-text">{{ question | replace('\\n', '<br>') | safe }}</p>
 
-        <!-- master/skill indicator -->
         <div style="margin-top: 18px;">
-            <div class="mastery-label">
-                Your mastery for this item: {{ current_mastery }} / {{ mastery_max }}
-            </div>
+            <div class="mastery-label">Mastery for this item: {{ current_mastery }} / {{ mastery_max }}</div>
             <div class="mastery-bar-wrap">
-                <div class="mastery-bar-fill"
-                     data-width="{{ (current_mastery / mastery_max * 100)|int }}">
-                </div>
+                <div class="mastery-bar-fill" data-width="{{ (current_mastery / mastery_max * 100)|int }}"></div>
             </div>
         </div>
 
         {% if hint %}
-        <button class="btn-hint" onclick="toggleHint(this)">! Show Hint</button>
+        <button class="btn-hint" onclick="toggleHint(this)">Show Hint</button>
         <div class="hint-box" id="hint-box">{{ hint }}</div>
+        {% endif %}
+
+        {% if example %}
+        <button class="btn-hint" style="border-color:#2ecc71;color:#2ecc71;margin-left:8px;"
+                onclick="toggleExample(this)">Show Worked Example</button>
+        <div class="hint-box" id="example-box"
+             style="border-left-color:#2ecc71;background:#eafaf1;color:#1a5276;display:none;">
+            <strong style="font-size:0.82em;text-transform:uppercase;letter-spacing:0.5px;color:#555;">Worked Example</strong>
+            <pre style="margin:10px 0 0;font-family:'Fira Code','Courier New',monospace;font-size:0.9em;
+                        background:#1a1a2e;color:#f8f8f2;padding:12px;border-radius:6px;
+                        overflow-x:auto;white-space:pre;line-height:1.6;">{{ example }}</pre>
+        </div>
         {% endif %}
     </div>
 
@@ -216,14 +259,31 @@
     <div class="card">
         <h2>Your Answer</h2>
         <form method="POST" action="/attempt" id="code-form">
-            <input type="hidden" name="item_id"        value="{{ item_id }}">
-            <input type="hidden" name="hint_requested" id="hint-flag" value="false">
+            <input type="hidden" name="item_id"         value="{{ item_id }}">
+            <input type="hidden" name="hint_requested"  id="hint-flag"       value="false">
+            <input type="hidden" name="pyodide_graded"  id="pyodide-graded"  value="false">
+            <input type="hidden" name="pyodide_correct" id="pyodide-correct" value="false">
+
+            
 
             <div class="editor-wrap">
                 <textarea id="code" name="code"></textarea>
             </div>
 
-            <button type="submit" class="btn-submit">Submit</button>
+            <!-- output panel: shown after run clicked -->
+            <div class="output-panel" id="output-panel">
+                <div class="output-header">
+                    <span>Output</span>
+                    <span class="output-badge" id="output-badge"></span>
+                </div>
+                <pre id="output-text"></pre>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-run" id="run-btn" onclick="runCode()">▶ Run</button>
+                <button type="submit" class="btn-submit" id="submit-btn">Submit</button>
+                <span class="pyodide-status" id="pyodide-status">Loading Python runtime…</span>
+            </div>
         </form>
         <br>
         <a href="/" class="footer-link">Back to home</a>
@@ -232,12 +292,14 @@
 </div>
 
 <script>
-    // applying data wdth values as inline widths here
+    const EXPECTED_OUTPUT = {{ expected_output | tojson }};
+
+    // apply data width as inline width
     document.querySelectorAll('[data-width]').forEach(function(el) {
         el.style.width = el.getAttribute('data-width') + '%';
     });
 
-    // setting up codemirror5 properly
+    // CodeMirror setup
     const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode:           "python",
         theme:          "dracula",
@@ -246,25 +308,118 @@
         tabSize:        4,
         indentWithTabs: false,
         autofocus:      true,
-        extraKeys: {
-            "Tab": cm => cm.replaceSelection("    ", "end")
-        }
+        extraKeys: { "Tab": cm => cm.replaceSelection("    ", "end") }
     });
 
-    // codemirror sync when submitting
+    // syncing the CodeMirror to textarea on submit
     document.getElementById('code-form').addEventListener('submit', function() {
         editor.save();
     });
 
-    // hint toggling option
+    // hint and example toggles
     function toggleHint(btn) {
         const box = document.getElementById('hint-box');
         const showing = box.style.display === 'block';
-        box.style.display  = showing ? 'none' : 'block';
-        btn.textContent    = showing ? '💡 Show Hint' : '💡 Hide Hint';
-        if (!showing) {
-            document.getElementById('hint-flag').value = 'true';
+        box.style.display = showing ? 'none' : 'block';
+        btn.textContent   = showing ? 'Show Hint' : 'Hide Hint';
+        if (!showing) document.getElementById('hint-flag').value = 'true';
+    }
+    function toggleExample(btn) {
+        const box = document.getElementById('example-box');
+        const showing = box.style.display === 'block';
+        box.style.display = showing ? 'none' : 'block';
+        btn.textContent   = showing ? 'Show Worked Example' : 'Hide Worked Example';
+    }
+
+    // Pyodide setup
+    let pyodide = null;
+
+    async function loadPyodideRuntime() {
+        try {
+            pyodide = await loadPyodide();
+            document.getElementById('pyodide-status').textContent = 'Python ready';
+            document.getElementById('run-btn').disabled = false;
+        } catch(e) {
+            document.getElementById('pyodide-status').textContent = 'Runtime unavailable — submit to grade';
+            document.getElementById('run-btn').disabled = true;
         }
+    }
+
+    // disable run button until pyodide loads
+    document.getElementById('run-btn').disabled = true;
+    loadPyodideRuntime();
+
+    // normalise output the same way the server does, strip trailing whitespace per line, trim
+    function normaliseOutput(s) {
+        return s.split('\n')
+                .map(l => l.trimEnd())
+                .join('\n')
+                .trim();
+    }
+
+    async function runCode() {
+        if (!pyodide) return;
+
+        const runBtn    = document.getElementById('run-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        runBtn.disabled = true;
+        runBtn.textContent = '⏳ Running…';
+
+        editor.save();
+        const code     = document.getElementById('code').value;
+        const expected = EXPECTED_OUTPUT || '';
+
+        const panel    = document.getElementById('output-panel');
+        const outputEl = document.getElementById('output-text');
+        const badgeEl  = document.getElementById('output-badge');
+
+        panel.style.display = 'block';
+
+        try {
+            // redirect stdout so we can capture print() output
+            await pyodide.runPythonAsync(`
+import sys, io
+sys.stdout = io.StringIO()
+`);
+            await pyodide.runPythonAsync(code);
+            const raw    = await pyodide.runPythonAsync(`sys.stdout.getvalue()`);
+            const actual = normaliseOutput(String(raw));
+
+            outputEl.textContent = actual || '(no output)';
+
+            // compare against expected output if available
+            if (expected !== '') {
+                const exp = normaliseOutput(expected.replace(/\\n/g, '\n').replace(/\\r/g, ''));
+                console.log('ACTUAL:', JSON.stringify(actual));
+                console.log('EXPECTED:', JSON.stringify(exp));
+                const correct = (actual === exp);
+
+                document.getElementById('pyodide-graded').value  = 'true';
+                document.getElementById('pyodide-correct').value = correct ? 'true' : 'false';
+
+                badgeEl.textContent  = correct ? '✓ Correct' : '✗ Incorrect';
+                badgeEl.className    = 'output-badge ' + (correct ? 'output-correct' : 'output-wrong');
+            } else {
+                // no expected output, just show the output, fall back to server grading
+                badgeEl.textContent = '';
+                badgeEl.className   = 'output-badge';
+            }
+
+        } catch(err) {
+            // show the error message, mark as incorrect
+            outputEl.textContent = String(err);
+            badgeEl.textContent  = '⚠ Error';
+            badgeEl.className    = 'output-badge output-error';
+
+            document.getElementById('pyodide-graded').value  = 'true';
+            document.getElementById('pyodide-correct').value = 'false';
+        }
+
+        // restore stdout for next run
+        await pyodide.runPythonAsync(`sys.stdout = sys.__stdout__`).catch(() => {});
+
+        runBtn.disabled    = false;
+        runBtn.textContent = '▶ Run';
     }
 </script>
 </body>
